@@ -26,6 +26,7 @@ static void __attribute__((__noreturn__)) usage(void)
     exit(1);
 }
 
+/* Both Process and CPU ids should be positive numbers. */
 static int convert_str_to_int(char* begin)
 {
     if (!begin)
@@ -36,7 +37,7 @@ static int convert_str_to_int(char* begin)
     errno = 0;
     char *end = NULL;
     long num = strtol(begin, &end, 10);
-    if (errno || (*end != '\0') || (num > INT_MAX))
+    if (errno || (*end != '\0') || (num > INT_MAX) || (num < 0))
     {
         errx(1, "Invalid integer: %s", begin);
     }
@@ -73,7 +74,7 @@ static void parse_cpu_list(char* cpu_list, cpu_set_t* cpu_set)
             *hyphen = '\0';
             int first_cpu = convert_str_to_int(begin);
             int last_cpu = convert_str_to_int(hyphen + 1);
-            if (first_cpu > last_cpu)
+            if ((first_cpu > last_cpu) || (last_cpu >= CPU_SETSIZE))
             {
                 errx(1, "Invalid cpu list: %s", cpu_list);
             }
